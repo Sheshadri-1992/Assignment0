@@ -1,5 +1,4 @@
 package in.ds256.Assignment0;
-
 import java.io.IOException;
 
 import org.apache.spark.SparkConf;
@@ -16,7 +15,7 @@ public class FreqTag  {
 		String inputFile = args[0]; // Should be some file on HDFS
 		String outputFile = args[1]; // Should be some file on HDFS
 		
-		SparkConf sparkConf = new SparkConf().setAppName("FreqTag");
+		SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("FreqTag");
 		JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
 		/**

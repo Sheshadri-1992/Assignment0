@@ -9,7 +9,7 @@ import org.apache.spark.api.java.JavaSparkContext;
  * DS-256 Assignment 0
  * Code for finding frequent co-occuring hash-tags
  */
-public class ​TopCoOccurrence  {
+public class TopOccurrence  {
 	
 	public static void main(String[] args) throws IOException {	
 		
