@@ -57,33 +57,43 @@ public class FreqTag implements Serializable {
 	}
 
 	/** This is for mapPartitionsToPair **/
-	public PairFlatMapFunction<Iterator<String>, String, UserHashtagCount> myTag=new PairFlatMapFunction<Iterator<String>,String,UserHashtagCount>(){
+	public PairFlatMapFunction<Iterator<String>, String, UserHashtagCount> myTag = new PairFlatMapFunction<Iterator<String>, String, UserHashtagCount>() {
 
-	@Override public Iterator<Tuple2<String,UserHashtagCount>>call(Iterator<String>t)throws Exception{
+		@Override
+		public Iterator<Tuple2<String, UserHashtagCount>> call(Iterator<String> t) throws Exception {
 
-	ArrayList<Tuple2<String,UserHashtagCount>>iter=new ArrayList<Tuple2<String,UserHashtagCount>>();
-	// TODO Auto-generated method stub
+			ArrayList<Tuple2<String, UserHashtagCount>> iter = new ArrayList<Tuple2<String, UserHashtagCount>>();
+			// TODO Auto-generated method stub
 
-	Parser myParse=new Parser();
+			Parser myParse = new Parser();
 
-	while(t.hasNext()){String jsonObject=t.next();
+			while (t.hasNext()) {
+				String jsonObject = t.next();
 
-	if(jsonObject==null||jsonObject.isEmpty())continue;
+				if (jsonObject == null || jsonObject.isEmpty())
+					continue;
 
-	myParse.setInputJson(jsonObject);
+				myParse.setInputJson(jsonObject);
 
-	if(myParse.checkIfDelete()) // skip the delete sweets
-	continue;
+				String userName = myParse.getUser();				
+				if (userName == null)
+					continue;
 
-	String userName=myParse.getUser();System.out.println("User name is"+userName);if(userName==null)continue;
+				try {
+					UserHashtagCount userHasCount = new UserHashtagCount(userName, myParse.getHashTags(), 1);
 
-	try{UserHashtagCount userHasCount=new UserHashtagCount(userName,myParse.getHashTags(),1);
+					Tuple2<String, UserHashtagCount> myTuple = new Tuple2<String, FreqTag.UserHashtagCount>(userName,
+							userHasCount);
+					iter.add(myTuple);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
-	Tuple2<String,UserHashtagCount>myTuple=new Tuple2<String,FreqTag.UserHashtagCount>(userName,userHasCount);iter.add(myTuple);}catch(Exception e){e.printStackTrace();}
+			}
 
-	}
-
-	return iter.iterator();}};
+			return iter.iterator();
+		}
+	};
 
 	public static void main(String[] args) {
 		SparkConf sparkconf = new SparkConf().setAppName("FreqTag");
@@ -94,8 +104,8 @@ public class FreqTag implements Serializable {
 
 		long startTime = Time.now();
 
+		
 		/** Important stuff starts here **/
-
 		FreqTag mySparkObj = new FreqTag();
 
 		JavaRDD<String> inputTweets = sc.textFile(inputFile);
@@ -138,84 +148,70 @@ public class FreqTag implements Serializable {
 		groupedHashCount = groupedHashCount.cache();
 
 		/** Printing sample, to check the results **/
-		for (UserHashtagCount item : groupedHashCount.values().top(5)) {
+//		for (UserHashtagCount item : groupedHashCount.values().top(5)) {
+//
+//			Double hashPerTweet = (double) ((double) item.getTotalHashTags() / (double) item.getTotalTweets());
+//			System.out.println("The user is " + item.getUser() + " total Tweets are " + item.getTotalTweets()
+//					+ " hashtags are " + item.getTotalHashTags() + " ratio is " + hashPerTweet);
+//		}
 
-			Double hashPerTweet = (double) ((double) item.getTotalHashTags() / (double) item.getTotalTweets());
-			System.out.println("The user is " + item.getUser() + " total Tweets are " + item.getTotalTweets()
-					+ " hashtags are " + item.getTotalHashTags() + " ratio is " + hashPerTweet);
-		}
+		JavaPairRDD<Integer, Long> countRDD = groupedHashCount
+				.mapToPair(new PairFunction<Tuple2<String, UserHashtagCount>, Integer, Long>() {
 
-		long[] array = new long[94];
+					@Override
+					public Tuple2<Integer, Long> call(Tuple2<String, UserHashtagCount> tuple) throws Exception {
 
-		JavaPairRDD<Integer,Integer> countRDD = groupedHashCount.mapToPair(new PairFunction<Tuple2<String,UserHashtagCount>, Integer, Integer>() {
+						UserHashtagCount userHashRatio = tuple._2;
+						Double hashPerTweet = 0.0;
+
+						if (userHashRatio.getTotalTweets() == 0) {
+							Tuple2<Integer, Long> myTuple = new Tuple2<Integer, Long>(0, (long) 0);
+							return myTuple;
+						}
+
+						hashPerTweet = (double) ((double) userHashRatio.getTotalHashTags()
+								/ (double) userHashRatio.getTotalTweets());
+
+						System.out.println(" The hashpertweet is " + hashPerTweet);
+
+						int bucket = hashPerTweet.intValue(); // eg 0.14 will be bucket 0, 1.2 will be bucket 1, 5 will be bucket 5
+						Tuple2<Integer, Long> myTuple = new Tuple2<Integer, Long>(bucket, (long) 1);
+
+						return myTuple;
+					}
+
+				});
+
+		/** Aggregating each bucket's value**/
+		countRDD = countRDD.reduceByKey(new Function2<Long, Long, Long>() { // First Integer is bucket, Second bucket is for count
 
 			@Override
-			public Tuple2<Integer, Integer> call(Tuple2<String, UserHashtagCount> tuple) throws Exception {
-				
-				UserHashtagCount userHashRatio = tuple._2;			
-				Double hashPerTweet = 0.0;
-
-				if (userHashRatio.getTotalTweets() == 0) {
-					Tuple2<Integer,Integer> myTuple = new Tuple2<Integer,Integer>(0, 0);
-					return myTuple;
-				}
-
-				hashPerTweet = (double) ((double) userHashRatio.getTotalHashTags()
-						/ (double) userHashRatio.getTotalTweets());
-
-				System.out.println(" The hashpertweet is " + hashPerTweet);
-
-				int bucket = hashPerTweet.intValue(); // eg 0.14 will be bucket 0, 1.2 will be bucket 1, 5 will be bucket 5				
-				Tuple2<Integer,Integer> myTuple = new Tuple2<Integer,Integer>(bucket, 1);
-				
-				return myTuple;
+			public Long call(Long v1, Long v2) throws Exception {
+				return v1 + v2;
 			}
-			
-			
-		} );
-		
-		countRDD = countRDD.reduceByKey( new Function2<Integer, Integer, Integer>() {
-			
-			@Override
-			public Integer call(Integer v1, Integer v2) throws Exception {
-				// TODO Auto-generated method stub
-				return v1+v2;
-			}
-		} );
-//			@Override
-//			public Double call(Tuple2<String, UserHashtagCount> tuple) throws Exception {
-//
-//				UserHashtagCount userHashRatio = tuple._2;
-//				Double hashPerTweet = 0.0;
-//
-//				if (userHashRatio.getTotalTweets() == 0)
-//					return hashPerTweet;
-//
-//				hashPerTweet = (double) ((double) userHashRatio.getTotalHashTags()
-//						/ (double) userHashRatio.getTotalTweets());
-//
-//				System.out.println(" The hashpertweet is " + hashPerTweet);
-//
-//				int bucket = hashPerTweet.intValue(); // eg 0.14 will be bucket 0, 1.2 will be bucket 1, 5 will be bucket 5
-//				
-//				return hashPerTweet;
-//			}
-		
+		});
 
 		long num = countRDD.count();
 
-		ArrayList<Long> tweetBuckets = new ArrayList<Long>();
+		ArrayList<Integer> tweetBuckets = new ArrayList<Integer>();
 
-		for (int i = 0; i < 94; i++) {
-			tweetBuckets.add(array[i]);
+		for (Integer item : countRDD.keys().collect()) {
+			System.out.println("They key is "+item);
+			tweetBuckets.add(item);
 		}
 
-		JavaRDD<Long> bucketRDD = sc.parallelize(tweetBuckets);
-		for (Long count : bucketRDD.collect()) {
-			System.out.println(count);
+		ArrayList<Long> userCounts = new ArrayList<Long>();
+
+		for (Long item : countRDD.values().collect()) {
+			System.out.println("The value is "+item);
+			userCounts.add(item);
 		}
 
-		bucketRDD.coalesce(1).saveAsTextFile(outputFile);
+		JavaRDD<Integer> bucketRDD = sc.parallelize(tweetBuckets);
+		bucketRDD.coalesce(1).saveAsTextFile(outputFile+"/keys");
+		
+		JavaRDD<Long> userCountRDD = sc.parallelize(userCounts);
+		userCountRDD.coalesce(1).saveAsObjectFile(outputFile+"/values");
 
 		end = Time.now();
 
