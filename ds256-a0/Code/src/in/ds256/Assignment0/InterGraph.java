@@ -26,7 +26,7 @@ public class InterGraph {
 		String vertexFile = args[1]; // Should be some file on HDFS
 		String edgeFile = args[2]; // Should be some file on HDFS
 
-		SparkConf sparkConf = new SparkConf().setAppName("InterGraph");
+		SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("InterGraph");
 		JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
 		JavaRDD<String> inputTweets = sc.textFile(inputFile);
@@ -45,8 +45,6 @@ public class InterGraph {
 			}
 		});
 
-		System.out.println("Total tweets after delete are " + inputTweets.count());
-
 		/** Create a RDD of users and their followers, friends **/
 		JavaPairRDD<String, String> vertexRDD = inputTweets
 				.mapPartitionsToPair(new PairFlatMapFunction<Iterator<String>, String, String>() {
@@ -55,17 +53,14 @@ public class InterGraph {
 					public Iterator<Tuple2<String, String>> call(Iterator<String> jsonFile) throws Exception {
 
 						ArrayList<Tuple2<String, String>> myIter = new ArrayList<Tuple2<String, String>>();
-
 						Parser myParse = new Parser();
 
 						while (jsonFile.hasNext()) {
 							String jsonString = jsonFile.next();
-
 							myParse.setInputJson(jsonString);
 
 							if (jsonString == null || jsonString.isEmpty())
 								continue;
-
 							String userName = myParse.getUser();
 
 							if (userName == null || userName.isEmpty())
@@ -92,18 +87,17 @@ public class InterGraph {
 
 					}
 				});
-		
-		/**Reduce the User Tweets by userID **/
-		vertexRDD = vertexRDD.reduceByKey( new Function2<String, String, String>() {
-			
+
+		/** Reduce the User Tweets by userID **/
+		vertexRDD = vertexRDD.reduceByKey(new Function2<String, String, String>() {
 			@Override
 			public String call(String v1, String v2) throws Exception {
 				String result = v1 + "," + v2;
-				
+
 				return result;
 			}
-		} );
-		
+		});
+
 		/** Create RDD for edge **/
 		JavaPairRDD<String, String> edgeRDD = inputTweets
 				.mapPartitionsToPair(new PairFlatMapFunction<Iterator<String>, String, String>() {
@@ -120,70 +114,73 @@ public class InterGraph {
 							String jsonString = jsonFile.next();
 
 							sourceTweetParser.setInputJson(jsonString);
-
 							if (jsonString == null || jsonString.isEmpty())
 								continue;
 
 							String userName = sourceTweetParser.getUser();
-
 							if (userName == null || userName.isEmpty())
 								continue;
 
-							/** Check if it is a retweeted tweet**/
+							/** Check if it is a retweeted tweet **/
 							if (sourceTweetParser.isRetweeted() == false)
 								continue;
-							
+
 							String sourceId = sourceTweetParser.getUser();
-							
 							JSONObject sinkTweet = sourceTweetParser.getRetweetJsonObject();
-							if(sinkTweet==null)
+							if (sinkTweet == null)
 								continue;
-							
+
 							sinkTweetParser.setInputJsonObject(sinkTweet);
 							String sinkId = sinkTweetParser.getUser();
 							String timeStamp = sourceTweetParser.getCreatedAt();
 							String tweetId = sinkTweetParser.getUser();
-							String retweetId = userName;							
-							
-							/** Check if the original tweeter is present or not**/
-							if(tweetId == null || tweetId.isEmpty())
+							String retweetId = userName;
+
+							/** Check if the original tweeter is present or not **/
+							if (tweetId == null || tweetId.isEmpty())
 								continue;
-							
+
 							ArrayList<String> hashTags = sinkTweetParser.getHashTagArray();
-							
-							String key = sourceId+","+sinkId;
+
+							String key = sourceId + "," + sinkId;
 							String value = timeStamp + "," + tweetId + "," + retweetId;
-							
-							//TODO: Use a string builder 
-							for(String hashTag: hashTags) {
-								value = value + "," + hashTag; 
+
+							// TODO: Use a string builder
+							for (String hashTag : hashTags) {
+								value = value + "," + hashTag;
 							}
-							
-							Tuple2<String,String> edgeTuple = new Tuple2<String, String>(key, value);
+
+							Tuple2<String, String> edgeTuple = new Tuple2<String, String>(key, value);
 							myIter.add(edgeTuple);
-							
+
 						}
 
 						return myIter.iterator();
 
 					}
 				});
-		
+
 		/** Reduce by key to aggregate the edge interactions **/
-		edgeRDD = edgeRDD.reduceByKey(  new Function2<String, String, String>() {
-			
+		edgeRDD = edgeRDD.reduceByKey(new Function2<String, String, String>() {
 			@Override
 			public String call(String v1, String v2) throws Exception {
-				
-				String result = v1 + ";" + v2;				
+
+				String result = v1 + ";" + v2;
 				return result;
 			}
-		} );
-		
+		});
+
+//		for (String item : vertexRDD.keys().collect()) {
+//			System.out.println(" The  key is " + item);
+//		}
+//
+//		for (String item : vertexRDD.values().collect()) {
+//			System.out.println(" The  value is " + item);
+//		}
+
 		/** Save it to HDFS **/
 		vertexRDD.saveAsTextFile(vertexFile);
 		edgeRDD.saveAsTextFile(edgeFile);
-		
 
 		sc.stop();
 		sc.close();

@@ -24,7 +24,6 @@ public class FreqTag implements Serializable {
 
 	public class UserHashtagCount implements Serializable {
 
-		private static final long serialVersionUID = 1L;
 		public String userId = "";
 		public long totalHashTags;
 		public long totalTweets;
@@ -129,11 +128,6 @@ public class FreqTag implements Serializable {
 		/** json to pairRdd: UserID, UserHashTagCount **/
 		JavaPairRDD<String, UserHashtagCount> userHashCountRDD = inputTweets.mapPartitionsToPair(mySparkObj.myTag);
 
-		System.out.println("The number of partions of userHashCountRDD are " + userHashCountRDD.getNumPartitions());
-
-		end = Time.now();
-		System.out.println("The time taken in seconds is  after map partions to pair " + (end - startTime) / 1000);
-
 		/** Aggregating the things **/
 		JavaPairRDD<String, UserHashtagCount> groupedHashCount = userHashCountRDD.reduceByKey(
 				new Function2<FreqTag.UserHashtagCount, FreqTag.UserHashtagCount, FreqTag.UserHashtagCount>() {
@@ -148,14 +142,6 @@ public class FreqTag implements Serializable {
 				});
 
 		groupedHashCount = groupedHashCount.cache();
-
-		/** Printing sample, to check the results **/
-//		for (UserHashtagCount item : groupedHashCount.values().top(5)) {
-//
-//			Double hashPerTweet = (double) ((double) item.getTotalHashTags() / (double) item.getTotalTweets());
-//			System.out.println("The user is " + item.getUser() + " total Tweets are " + item.getTotalTweets()
-//					+ " hashtags are " + item.getTotalHashTags() + " ratio is " + hashPerTweet);
-//		}
 
 		/** <Integer,Long> Integer is the bucket, Long  **/
 		JavaPairRDD<Integer, Long> countRDD = groupedHashCount
@@ -187,7 +173,6 @@ public class FreqTag implements Serializable {
 
 		/** Aggregating each bucket's value**/
 		countRDD = countRDD.reduceByKey(new Function2<Long, Long, Long>() { // First Integer is bucket, Second bucket is for count
-
 			@Override
 			public Long call(Long v1, Long v2) throws Exception {
 				return v1 + v2;

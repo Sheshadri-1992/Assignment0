@@ -36,12 +36,10 @@ public class TopOccurrence {
 		inputTweets = inputTweets.filter(new Function<String, Boolean>() {
 			@Override
 			public Boolean call(String jsonString) throws Exception {
-
 				if (jsonString.contains("\"delete\""))
 					return false;
 
 				return true;
-
 			}
 		});
 
@@ -56,10 +54,7 @@ public class TopOccurrence {
 						ArrayList<Tuple2<String, Integer>> myIter = new ArrayList<Tuple2<String, Integer>>();
 						Parser myParse = new Parser();
 
-						if (jsonString == null)
-							return myIter.iterator();
-
-						if (jsonString.isEmpty())
+						if (jsonString == null || jsonString.isEmpty())
 							return myIter.iterator();
 
 						myParse.setInputJson(jsonString);
