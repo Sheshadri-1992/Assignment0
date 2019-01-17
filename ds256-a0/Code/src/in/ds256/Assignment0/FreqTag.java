@@ -63,8 +63,8 @@ public class FreqTag implements Serializable {
 		public Iterator<Tuple2<String, UserHashtagCount>> call(Iterator<String> t) throws Exception {
 
 			ArrayList<Tuple2<String, UserHashtagCount>> iter = new ArrayList<Tuple2<String, UserHashtagCount>>();
-			// TODO Auto-generated method stub
-
+			
+			/** JSON Parser **/
 			Parser myParse = new Parser();
 
 			while (t.hasNext()) {
@@ -103,13 +103,13 @@ public class FreqTag implements Serializable {
 		String outputFile = args[1]; // Should be some file on HDFS
 
 		long startTime = Time.now();
-
 		
 		/** Important stuff starts here **/
 		FreqTag mySparkObj = new FreqTag();
 
 		JavaRDD<String> inputTweets = sc.textFile(inputFile);
 
+		/**Ignore the deleted tweets since it doesn't add to the tweet count of the user **/
 		inputTweets = inputTweets.filter(new Function<String, Boolean>() {
 			@Override
 			public Boolean call(String jsonString) throws Exception {
@@ -121,10 +121,12 @@ public class FreqTag implements Serializable {
 
 			}
 		});
+		
+		System.out.println("The total number of tweets after delete are "+inputTweets.count());		
 
 		long end = Time.now();
 
-		/** json to pairRdd **/
+		/** json to pairRdd: UserID, UserHashTagCount **/
 		JavaPairRDD<String, UserHashtagCount> userHashCountRDD = inputTweets.mapPartitionsToPair(mySparkObj.myTag);
 
 		System.out.println("The number of partions of userHashCountRDD are " + userHashCountRDD.getNumPartitions());
@@ -155,6 +157,7 @@ public class FreqTag implements Serializable {
 //					+ " hashtags are " + item.getTotalHashTags() + " ratio is " + hashPerTweet);
 //		}
 
+		/** <Integer,Long> Integer is the bucket, Long  **/
 		JavaPairRDD<Integer, Long> countRDD = groupedHashCount
 				.mapToPair(new PairFunction<Tuple2<String, UserHashtagCount>, Integer, Long>() {
 
@@ -211,7 +214,7 @@ public class FreqTag implements Serializable {
 		bucketRDD.coalesce(1).saveAsTextFile(outputFile+"/keys");
 		
 		JavaRDD<Long> userCountRDD = sc.parallelize(userCounts);
-		userCountRDD.coalesce(1).saveAsObjectFile(outputFile+"/values");
+		userCountRDD.coalesce(1).saveAsTextFile(outputFile+"/values");
 
 		end = Time.now();
 

@@ -281,6 +281,33 @@ public class MyFirstSpark implements Serializable {
 		
 		JavaRDD<Long> bucketRDD = sc.parallelize(tweetBuckets);
 //		bucketRDD.coalesce(1).saveAsTextFile(Constants.TWEET_OUTPUT_DIR);
+		
+		/** Create a RDD of <String,String> the key String is user_ID,created_at, [,timestamp,followers_count **/
+		JavaRDD<String> testing = sc.parallelize(Arrays.asList("Rama","Krishna"));
+		JavaPairRDD<String,String> testingPair = testing.mapToPair( new PairFunction<String, String, String>() {
+
+			@Override
+			public Tuple2<String, String> call(String t) throws Exception {
+				
+				System.out.println("The string is "+t);
+				
+				String key = "";
+				String value = "";
+				
+				
+				if(t.compareTo("Rama")==0)
+					key="Rama";
+				else
+					key="Krishna";
+				
+				value = "god";
+				
+				
+				Tuple2<String, String> myTuple = new Tuple2<String, String>(key,value);
+				return myTuple;
+
+			}
+		});
 		 	
 		
 		for(Long count: bucketRDD.collect()) {

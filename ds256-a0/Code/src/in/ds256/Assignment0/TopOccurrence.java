@@ -68,6 +68,7 @@ public class TopOccurrence {
 							int totalHashTags = myParse.getHashTags();
 							ArrayList<String> hashTags = myParse.getHashTagArray();
 
+							/** Sort the hash tags in lexicographic ascending order **/
 							hashTags.sort(new Comparator<String>() {
 
 								@Override
@@ -82,7 +83,12 @@ public class TopOccurrence {
 
 							for (int i = 0; i < totalHashTags; i++) {
 								for (int j = i + 1; j < totalHashTags; j++) {
-									pairHashTag = hashTags.get(i) + " " + hashTags.get(j);
+									
+									/** If both hash tags are same then skip it , don't count it**/
+									if(hashTags.get(i).compareTo(hashTags.get(j))==0)
+										continue;
+									
+									pairHashTag = hashTags.get(i) + ":" + hashTags.get(j);
 
 									Tuple2<String, Integer> myTuple = new Tuple2<String, Integer>(pairHashTag, 1);
 									myIter.add(myTuple);
@@ -115,16 +121,20 @@ public class TopOccurrence {
 					}
 				});
 
+		
+		/** Sorted in decreasing order **/
 		sortedRDD = sortedRDD.sortByKey(false);
 
 		ArrayList<Integer> myTop100Keys = new ArrayList<Integer>();
 		ArrayList<String> myTop100HashTags = new ArrayList<String>();
 
+		/** Take the top 100 counts of the co-occurring hashtags **/
 		for (Integer item : sortedRDD.keys().top(100)) {
 			System.out.println("The counts of the hashtags are " + item);
 			myTop100Keys.add(item);
 		}
-
+		
+		/** Take the top 100 strings of the co-occurring hashtags **/
 		for (String pairhashTag : sortedRDD.values().top(100)) {
 			System.out.println("The hashtags are " + pairhashTag);
 			myTop100HashTags.add(pairhashTag);
