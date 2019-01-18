@@ -75,7 +75,7 @@ public class FreqTag implements Serializable {
 				myParse.setInputJson(jsonObject);
 
 				String userName = myParse.getUser();				
-				if (userName == null)
+				if (userName == null || userName.isEmpty())
 					continue;
 
 				try {
@@ -106,8 +106,9 @@ public class FreqTag implements Serializable {
 		/** Important stuff starts here **/
 		FreqTag mySparkObj = new FreqTag();
 
-		JavaRDD<String> inputTweets = sc.textFile(inputFile);
-
+		System.out.println("Input size 1%");
+		JavaRDD<String> inputTweets = sc.textFile(inputFile);		
+		
 		/**Ignore the deleted tweets since it doesn't add to the tweet count of the user **/
 		inputTweets = inputTweets.filter(new Function<String, Boolean>() {
 			@Override
@@ -121,7 +122,7 @@ public class FreqTag implements Serializable {
 			}
 		});
 		
-		System.out.println("The total number of tweets after delete are "+inputTweets.count());		
+//		System.out.println("The total number of tweets after delete are "+inputTweets.count());		
 
 		long end = Time.now();
 
@@ -179,8 +180,6 @@ public class FreqTag implements Serializable {
 			}
 		});
 
-		long num = countRDD.count();
-
 		ArrayList<Integer> tweetBuckets = new ArrayList<Integer>();
 
 		for (Integer item : countRDD.keys().collect()) {
@@ -196,10 +195,10 @@ public class FreqTag implements Serializable {
 		}
 
 		JavaRDD<Integer> bucketRDD = sc.parallelize(tweetBuckets);
-		bucketRDD.coalesce(1).saveAsTextFile(outputFile+"/keys");
+		bucketRDD.saveAsTextFile(outputFile+"/keys");
 		
 		JavaRDD<Long> userCountRDD = sc.parallelize(userCounts);
-		userCountRDD.coalesce(1).saveAsTextFile(outputFile+"/values");
+		userCountRDD.saveAsTextFile(outputFile+"/values");
 
 		end = Time.now();
 

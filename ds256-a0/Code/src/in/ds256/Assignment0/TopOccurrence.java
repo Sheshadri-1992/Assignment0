@@ -31,7 +31,7 @@ public class TopOccurrence {
 
 		JavaRDD<String> inputTweets = sc.textFile(inputFile);
 
-		System.out.println("Total tweets are " + inputTweets.count());
+
 
 		inputTweets = inputTweets.filter(new Function<String, Boolean>() {
 			@Override
@@ -43,7 +43,7 @@ public class TopOccurrence {
 			}
 		});
 
-		System.out.println("Total tweets after delete are " + inputTweets.count());
+
 
 		JavaPairRDD<String, Integer> coHashTag = inputTweets
 				.flatMapToPair(new PairFlatMapFunction<String, String, Integer>() {
@@ -65,15 +65,13 @@ public class TopOccurrence {
 
 							/** Sort the hash tags in lexicographic ascending order **/
 							hashTags.sort(new Comparator<String>() {
-
 								@Override
 								public int compare(String o1, String o2) {
-
 									int compare = o1.compareTo(o2);
 									return compare;
-
 								}
 							});
+							
 							String pairHashTag = "";
 
 							for (int i = 0; i < totalHashTags; i++) {

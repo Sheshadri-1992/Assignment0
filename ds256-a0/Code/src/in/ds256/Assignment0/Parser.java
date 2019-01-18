@@ -11,6 +11,8 @@ import org.json.JSONObject;
 public class Parser {
 
 	JSONObject jObj;
+	JSONObject userObj;
+	
 
 	public Parser(String input) {
 		jObj = createJsonObject(input);
@@ -21,7 +23,8 @@ public class Parser {
 	}
 
 	public Parser() {
-
+		jObj = null;
+		userObj = null;
 	}
 
 	private JSONObject createJsonObject(String input) {
@@ -36,7 +39,13 @@ public class Parser {
 
 	/** This method is called from outside to create a json object **/
 	public void setInputJson(String json) {
-		jObj = createJsonObject(json);
+		
+		try {
+			jObj = createJsonObject(json);
+			userObj = jObj.getJSONObject("user");
+		}catch(Exception e){
+			userObj = null;
+		}
 
 	}
 	
@@ -53,6 +62,22 @@ public class Parser {
 			return null;
 		}
 	}
+	
+	/**
+	 * get the id_str in the JSON
+	 * @return
+	 */
+	public String getTweetId() {
+		try {
+			if (jObj == null)
+				return null;
+
+			return jObj.getString("id_str");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
 
 	/**
 	 * The id_str key of the user
@@ -60,10 +85,10 @@ public class Parser {
 	 */
 	public String getUser() {
 		try {
-			if (jObj == null)
+			if (userObj == null)
 				return null;
 
-			return jObj.getString("id_str");
+			return userObj.getString("id_str");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			return null;
@@ -109,6 +134,11 @@ public class Parser {
 		}
 	}
 
+	
+	/**
+	 * Created time of the user
+	 * @return
+	 */
 	public String getCreatedAt() {
 		String createdAt = "";
 
@@ -139,6 +169,41 @@ public class Parser {
 
 		return createdAt;
 	}
+	
+	/**
+	 * Timestamp of the tweet
+	 * @return
+	 */
+	public String getTimeStamp() {
+		String timeStamp = "";
+
+		try {
+			if (userObj == null)
+				return timeStamp;
+
+			timeStamp = userObj.getString("created_at");
+
+			/**
+			 * https://stackoverflow.com/questions/4521715/twitter-date-unparseable Wed Aug
+			 * 27 13:08:45 +0000 2008
+			 * https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+			 **/
+			String TWITTER = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+			SimpleDateFormat sf = new SimpleDateFormat(TWITTER, Locale.ENGLISH);
+			sf.setLenient(true);
+			Date creationDate = sf.parse(timeStamp);
+
+			/** Convert the time to unix epoch time **/
+			Long milli = creationDate.getTime();
+
+			return milli.toString();
+
+		} catch (Exception e) {
+			System.out.println("This is getCreatedAt " + e.getMessage());
+		}
+
+		return timeStamp;
+	}
 
 	/**
 	 * Get followers count returns a int value count if present , 0 else
@@ -148,10 +213,11 @@ public class Parser {
 
 		try {
 
-			if (jObj == null)
+			if (userObj == null)
 				return followersCount;
 
-			followersCount = jObj.getInt("followers_count");
+			followersCount = userObj.getInt("followers_count");
+			System.out.println("The follower count is "+followersCount);
 			return followersCount;
 
 		} catch (Exception e) {
@@ -170,10 +236,10 @@ public class Parser {
 
 		try {
 
-			if (jObj == null)
+			if (userObj == null)
 				return friendsCount;
 
-			friendsCount = jObj.getInt("friends_count");
+			friendsCount = userObj.getInt("friends_count");
 			return friendsCount;
 
 		} catch (Exception e) {
