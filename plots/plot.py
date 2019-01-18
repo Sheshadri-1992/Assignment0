@@ -21,6 +21,7 @@ def plotGraph(content):
 	plt.bar(X , Y, width = 1,color = 'skyblue')	
 
 	plt.xlabel("Buckets (hashtags per tweet) ",fontsize =18)
+	plt.xticks(X,X,fontsize=12, rotation=45)
 	plt.ylabel("Number of Users",fontsize=18)	    
 	plt.title('Frequency of Users vs Number of Users ', fontsize=16)	
 	plt.rc('axes',titlesize=18)

@@ -27,7 +27,7 @@ public class InterGraph {
 		String vertexFile = args[1]; // Should be some file on HDFS
 		String edgeFile = args[2]; // Should be some file on HDFS
 
-		SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("InterGraph");
+		SparkConf sparkConf = new SparkConf().setAppName("InterGraph");
 		JavaSparkContext sc = new JavaSparkContext(sparkConf);
 
 		long startTime = Time.now();
@@ -74,6 +74,10 @@ public class InterGraph {
 
 							/** Value part of the RDD **/
 							String timeStamp = myParse.getTimeStamp();
+							
+							if(createdAt==null || createdAt.isEmpty() || timeStamp==null || timeStamp.isEmpty())
+								continue;
+							
 							String followersCount = myParse.getFollowersCount().toString();
 							String friendsCount = myParse.getFriendsCount().toString();
 
@@ -91,6 +95,8 @@ public class InterGraph {
 
 					}
 				});
+		
+		
 
 		/** Reduce the User Tweets by userID **/
 		vertexRDD = vertexRDD.reduceByKey(new Function2<String, String, String>() {
