@@ -1,0 +1,58 @@
+10GB : 2:13 application_1547011148574_0340 
+53GB : 5:07  application_1547011148574_0345 
+106GB : 8:19 application_1547011148574_0349 (01:22:46 to 01:31:05)
+266GB : 19:46 application_1547011148574_0353 (02:07:15 to 02:27:01)
+
+/user/sheshadrik/assignment0_q4_1_percent
+/user/sheshadrik/assignment0_q4_5_percent_try4
+/user/sheshadrik/assignment0_q4_10_percent
+/user/sheshadrik/assignment0_q4_25_percent
+
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0340/jobs	
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0345/jobs
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0349/jobs
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0353/jobs
+
+
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0420/jobs
+
+
+1% which is 10GB data
+
+-------------------------------------------------------------------------------------------------
+Running with different number of executors
+4 executors application_1547011148574_0396 (18:25:07 to 18:28:12 ) => 3:05 mins
+/user/sheshadrik/assignment0_q4_1_percent_4_executor_try2
+
+3 executors application_1547011148574_0397 ( 18:33:58 to 18:37:11 ) => 3:13 mins (re-rerun?)
+/user/sheshadrik/assignment0_q4_1_percent_3_executor_try2
+
+2 executors application_1547011148574_0398 (18:40:35 to 18:45:52 ) => 5:17 mins
+/user/sheshadrik/assignment0_q4_1_percent_2_executor_try2
+-------------------------------------------------------------------------------------------------
+Running with different amount of executor memory
+5 executors 6GB  application_1547011148574_0398 (18:59:05 to 19:03:10) => 4:05 mins (rerun?)
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_6G
+
+5 executors 4GB application_1547011148574_0398 (19:07:23 to 19:10:57 ) => 3:34 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_4G
+
+5 executors 2GB  application_1547011148574_0398 (19:16:50 to  19:19:51) => 3:01 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_2G
+-------------------------------------------------------------------------------------------------
+Running with different number of executor cores
+3 cores application_1547011148574_0408 (19:42:23 to 19:49:26) => 7:03 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_3_cores
+
+2 cores application_1547011148574_0409 (19:53:02 to 19:57:16) => 4:14 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_2_cores
+
+1 cores application_1547011148574_0411 (20:05:38 to 20:09:33) => 3:55 mins (re-run this?)
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_1_cores
+-------------------------------------------------------------------------------------------------
+
+50GB 2 executor cores 8GB (20:17:20 to 21:44:48) application_1547011148574_0419 => 27:28 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_2_cores_50GB_data (the naming convention is wrong but the file is the correct one)
+
+50GB 4 executor cores 4GB (21:22:53 to 21:31:41) application_1547011148574_0420 => 8:48 mins
+/user/sheshadrik/assignment0_q4_1_percent_5_executor_2_cores_50GB_data_4GB_RAM (the naming convention is wrong but the file is the correct one)

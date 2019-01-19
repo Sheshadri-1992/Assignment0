@@ -1,0 +1,12 @@
+The latest application Id
+application_1547011148574_0329 (correct application ID)
+
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0329/stages/
+http://turing.cds.iisc.ac.in:18081/history/application_1547011148574_0329/1/jobs/
+
+hadoop fs -ls /user/sheshadrik/spltask3vertex
+hadoop fs -ls /user/sheshadrik/spltask3edge
+
+The number of vertices are 216379932
+The number of edges are 81555593
+

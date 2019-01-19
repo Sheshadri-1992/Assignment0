@@ -1,0 +1,7 @@
+application_1547011148574_0236
+
+hadoop fs -cat /user/sheshadrik/assignment0_q2_pair_skip/keys/*
+
+hadoop fs -cat /user/sheshadrik/assignment0_q2_pair_skip/values/*
+http://turing.cds.iisc.ac.in:18081/history/application_1547011148574_0236/jobs/
+

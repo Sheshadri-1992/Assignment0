@@ -1,0 +1,10 @@
+yarn logs --applicationId application_1547011148574_0323
+
+The output directory for keys
+hadoop fs -cat /user/sheshadrik/assignment0_q1_1tb_try2/keys/*
+
+The output directory for values
+hadoop fs -cat /user/sheshadrik/assignment0_q1_1tb_try2/values/*
+
+http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0323/jobs/job?id=0
+
