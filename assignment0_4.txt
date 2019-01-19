@@ -1,3 +1,5 @@
+Task 4 various data sizes, time to complete and applicationId
+
 10GB : 2:13 application_1547011148574_0340 
 53GB : 5:07  application_1547011148574_0345 
 106GB : 8:19 application_1547011148574_0349 (01:22:46 to 01:31:05)
@@ -14,8 +16,7 @@ http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0349/jobs
 http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0353/jobs
 
 
-http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0420/jobs
-
+Extra experiments that were ran
 
 1% which is 10GB data
 
@@ -54,5 +55,5 @@ Running with different number of executor cores
 50GB 2 executor cores 8GB (20:17:20 to 21:44:48) application_1547011148574_0419 => 27:28 mins
 /user/sheshadrik/assignment0_q4_1_percent_5_executor_2_cores_50GB_data (the naming convention is wrong but the file is the correct one)
 
-50GB 4 executor cores 4GB (21:22:53 to 21:31:41) application_1547011148574_0420 => 8:48 mins
+50GB 4 executor cores 4GB (21:22:53 to 21:43:41) application_1547011148574_0420 => 20:48 mins
 /user/sheshadrik/assignment0_q4_1_percent_5_executor_2_cores_50GB_data_4GB_RAM (the naming convention is wrong but the file is the correct one)

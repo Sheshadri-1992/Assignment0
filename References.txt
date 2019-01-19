@@ -1,7 +1,7 @@
-delete tweets are ignored since it doesn't show up in the 
+delete tweets are ignored since it doesn't show up in the tweet page of the user
 
 using id_str is because this link has told it to.
 https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object.html
 
-No clear picture of how to calculate hashtags
+No clear picture of how to calculate hashtags officially from twitter
 https://help.twitter.com/en/using-twitter/how-to-use-hashtags
