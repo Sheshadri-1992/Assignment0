@@ -16,6 +16,8 @@ http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0349/jobs
 http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0353/jobs
 
 
+
+-------------------------------------------------------------------------------------------------
 Extra experiments that were ran
 
 1% which is 10GB data

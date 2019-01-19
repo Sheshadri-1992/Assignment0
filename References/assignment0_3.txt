@@ -1,5 +1,4 @@
-The latest application Id
-application_1547011148574_0329 (correct application ID)
+application_1547011148574_0329
 
 http://turing.cds.iisc.ac.in:8088/proxy/application_1547011148574_0329/stages/
 http://turing.cds.iisc.ac.in:18081/history/application_1547011148574_0329/1/jobs/

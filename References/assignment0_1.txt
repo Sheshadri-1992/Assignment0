@@ -1,3 +1,5 @@
+application_1547011148574_0323
+
 yarn logs --applicationId application_1547011148574_0323
 
 The output directory for keys
